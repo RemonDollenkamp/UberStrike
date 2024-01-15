@@ -34,4 +34,4 @@ Route::middleware([
 });
 
 
-Route::post('/login', [LoginController::class, 'login'])->name('login');
+ Route::post('/login', [LoginController::class, 'login'])->name('login');

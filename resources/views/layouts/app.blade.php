@@ -7,6 +7,12 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
+               <!-- Styles -->
+               <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+        @livewireStyles
+
+        <!-- Scripts -->
+        <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -14,8 +20,7 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-        <!-- Styles -->
-        @livewireStyles
+
     </head>
     <body class="font-sans antialiased">
         <x-banner />
@@ -35,11 +40,12 @@
             <!-- Page Content -->
             <main>
                 {{ $slot }}
+                <button wire:click="$emit('openModal', 'AddRide')">Open Modal</button>
+
             </main>
         </div>
 
         @stack('modals')
-
         @livewireScripts
     </body>
 </html>

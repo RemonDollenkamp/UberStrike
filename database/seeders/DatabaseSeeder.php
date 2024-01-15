@@ -19,8 +19,8 @@ class DatabaseSeeder extends Seeder
 
         // Insert a sample user record
         DB::table('users')->insert([
-            'user-name' => 'u',
-            'password' => Hash::make('p'),
+            'user-name' => 'Fdeboer1',
+            'password' => Hash::make('Pass21!'),
         ]);
     }
 }
