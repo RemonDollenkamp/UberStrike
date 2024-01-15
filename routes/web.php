@@ -1,6 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\RideController;
+use App\Http\Controllers\DriverController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -25,4 +29,9 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+    Route::get('/taxiritten', [RideController::class, 'index'])->name('taxiritten');
+    Route::get('/chauffeurbeheer', [DriverController::class, 'index'])->name('chauffeurbeheer');
 });
+
+
+Route::post('/login', [LoginController::class, 'login'])->name('login');
