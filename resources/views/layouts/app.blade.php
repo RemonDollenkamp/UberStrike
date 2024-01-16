@@ -40,8 +40,6 @@
             <!-- Page Content -->
             <main>
                 {{ $slot }}
-                <button wire:click="$emit('openModal', 'AddRide')">Open Modal</button>
-
             </main>
         </div>
 

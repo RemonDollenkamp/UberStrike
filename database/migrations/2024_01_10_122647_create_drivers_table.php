@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('drivers', function (Blueprint $table) {
             $table->id(); // This will create an auto-incrementing primary key column named `id`
-            $table->string('full-name', 50)->nullable(false); 
+            $table->string('fullname', 50)->nullable(false); 
             $table->unsignedBigInteger('car')->nullable(false);        });
     }
 
