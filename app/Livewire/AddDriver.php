@@ -37,6 +37,6 @@ class AddDriver extends Component
         ]);
 
         // Redirect back to the DriverController@index after saving
-        return redirect()->route('driver.index');
+        return redirect()->route('chauffeurbeheer');
     }
 }

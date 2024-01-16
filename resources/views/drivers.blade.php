@@ -20,6 +20,7 @@
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 auto
                             </th>
+                            <th class="px-6 py-3 border-b-2 border-gray-300"></th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -27,7 +28,7 @@
                         @foreach($drivers as $driver)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    {{ $driver['full-name'] }}
+                                    {{ $driver['fullname'] }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <!-- Example: Display a button linking to the work shifts -->
@@ -35,6 +36,9 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     {{ $driver->car }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-no-wrap text-right border-b border-gray-200">
+                                    <button>Delete</button>
                                 </td>
                             </tr>
                         @endforeach
