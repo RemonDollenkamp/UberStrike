@@ -12,23 +12,6 @@ class DriverController extends Controller
 
     public function index()
     {
-        // Fetch all drivers from the database
-        $drivers = Driver::all();
-
-        // Pass the drivers data to the view
-        return view('drivers', ['drivers' => $drivers]);
-    }
-
-    public function destroy($id)
-    {
-        $driver = Driver::find($id);
-
-        if (!$driver) {
-            abort(404);
-        }
-
-        $driver->delete();
-
-        return redirect()->action([DriverController::class, 'index']);
+        return view('drivers');
     }
 }

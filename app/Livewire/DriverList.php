@@ -6,8 +6,10 @@ use Livewire\Component;
 use App\Models\Driver;
 use Illuminate\Support\Facades\Redirect;
 
-class AddDriver extends Component
+class DriverList extends Component
 {
+    public $id;
+
     public $isOpen = false;
     public $driverName;
     public $carNumber = 2;
@@ -18,7 +20,9 @@ class AddDriver extends Component
 
     public function render()
     {
-        return view('livewire.add-driver');
+        $drivers = Driver::all();
+
+        return view('livewire.driver-list', ['drivers' => $drivers]);
     }
 
     public function closeModal()
@@ -36,7 +40,19 @@ class AddDriver extends Component
             'car' => $this->carNumber,
         ]);
 
+            // Add success message to the session
+    session()->flash('success', 'Chauffeur toegevoegd');
+
         // Redirect back to the DriverController@index after saving
         return redirect()->route('chauffeurbeheer');
+    }
+
+    public function delete($id)
+    {
+        Driver::find($id)->delete();
+
+        session()->flash('success', 'Chauffeur verwijderd');
+        return redirect()->route('chauffeurbeheer');
+
     }
 }
