@@ -53,6 +53,5 @@ class DriverList extends Component
 
         session()->flash('success', 'Chauffeur verwijderd');
         return redirect()->route('chauffeurbeheer');
-
     }
 }

@@ -17,7 +17,7 @@
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     auto
                 </th>
-                <th class="px-6 py-3 border-b-2 border-gray-300"></th>
+                <th scope="col" class="px-6 py-3 border-b-2 border-gray-300"></th> <!-- Placeholder for delete button styling -->
             </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
@@ -35,7 +35,7 @@
                     {{ $driver->car }}
                 </td>
                 <td class="px-6 py-4 whitespace-no-wrap text-right border-b border-gray-200">
-                    <button type="button" wire:click="delete({{ $driver->id }})" wire:confirm="Weet je het zeker?">Verwijder</button>
+                    <button type="button" class="text-red-500 hover:underline focus:outline-none" wire:click="delete({{ $driver->id }})" wire:confirm="Weet je het zeker?">Verwijder</button>
                 </td>
             </tr>
             @endforeach
