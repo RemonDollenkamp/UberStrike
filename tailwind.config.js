@@ -20,10 +20,7 @@ export default {
     },
 
     plugins: [forms, typography],
-};
-module.exports = {
-    // ... (other configurations)
-
     darkMode: 'class', // or 'media' or 'false'
 };
+
 
