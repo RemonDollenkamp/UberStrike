@@ -1,18 +1,13 @@
 <?php
-
 return [
 
-    /*
-    |--------------------------------------------------------------------------
-    | Third Party Services
-    |--------------------------------------------------------------------------
-    |
-    | This file is for storing the credentials for third party services such
-    | as Mailgun, Postmark, AWS and more. This file provides the de facto
-    | location for this type of information, allowing packages to have
-    | a conventional file to locate the various service credentials.
-    |
-    */
+    'bing' => [
+        'base_uri' => 'https://dev.virtualearth.net/REST/v1/Routes/',
+        'verify' => env('HTTP_CLIENT_VERIFY', true),
+        'cert' => [env('HTTP_CLIENT_CERT', '')],
+        'ssl_key' => [env('HTTP_CLIENT_SSL_KEY', '')],
+        'cainfo' => env('HTTP_CLIENT_CAINFO', storage_path('cacert.pem')),
+    ],
 
     'mailgun' => [
         'domain' => env('MAILGUN_DOMAIN'),
@@ -32,3 +27,5 @@ return [
     ],
 
 ];
+
+    

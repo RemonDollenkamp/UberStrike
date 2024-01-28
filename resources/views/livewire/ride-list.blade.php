@@ -21,16 +21,18 @@
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Eindlocatie
                 </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Kostenindicatie
                 </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Chauffeur
                 </th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
                 </th>
-                <th scope="col" class="px-6 py-3 border-b-2 border-gray-300"></th> <!-- Placeholder for delete button styling -->
+                <th scope="col" class="px-3 py-3 border-b-2 border-gray-300"></th> <!-- Placeholder for delete button styling -->
+
+
             </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
@@ -40,14 +42,14 @@
                 <td class="px-6 py-4 whitespace-nowrap">
                     {{ $ride->dep }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap">
+                <td class="px-3 py-4 whitespace-nowrap">
                     <!-- Example: Display a button linking to the work shifts -->
                     {{ $ride->arrival }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap">
+                <td class="px-1 py-4 whitespace-nowrap">
                     {{ $ride->start_point }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap">
+                <td class="px-1 py-4 whitespace-nowrap">
                     {{ $ride->end_point }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
@@ -59,12 +61,13 @@
                 <td class="px-6 py-4 whitespace-nowrap">
                     compleet
                 </td>
-                <td class="px-6 py-4 whitespace-no-wrap">
-                    <!-- Delete button styled as a label connected to the row -->
+                <td class="px-4 py-4 whitespace-nowrap">
+                    <!-- Delete button connected to the row -->
                     <button type="button" wire:click="delete({{ $ride->id }})" wire:confirm="Weet je het zeker?" class="text-red-500 hover:underline focus:outline-none">
                         Verwijder
                     </button>
                 </td>
+
             </tr>
             @endforeach
         </tbody>
@@ -116,6 +119,21 @@
                     <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md">Maak aan</button>
                 </div>
             </form>
+        </div>
+        @endif
+
+        @if($isConfirmationOpen)
+        <!-- Confirmation pop-up -->
+        <div class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 bg-white rounded-lg shadow-md">
+            <!-- Display ride details -->
+            <p>Beginlocatie: {{ $rideDetails['start_point'] }}</p>
+            <p>Eindlocatie: {{ $rideDetails['end_point'] }}</p>
+            <p>Vertrektijd: {{ $rideDetails['dep'] }}</p>
+            <p>Personen: {{ $rideDetails['personCount'] }}</p>
+
+            <!-- Confirm and cancel buttons -->
+            <button wire:click="confirmRide" class="px-4 py-2 bg-green-500 text-white rounded-md">Ja</button>
+            <button wire:click="cancelRide" class="px-4 py-2 bg-red-500 text-white rounded-md">Nee</button>
         </div>
         @endif
 
