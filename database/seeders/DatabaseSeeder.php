@@ -27,19 +27,48 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('p'), //Pass21!
         ]);
 
+
         DB::table('drivers')->insert([
-            'fullname' => 'Kees vd Spek', //Fdeboer1
+            'fullname' => 'Kees vd Spek', 
             'car' => 1, 
         ]);
+        DB::table('drivers')->insert([
+            'fullname' => 'Jan Schooi', 
+            'car' => 2, 
+        ]);
 
-        // Insert a sample user record
+
         DB::table('rides')->insert([
             'dep' => $departDateTime,
             'arrival' => $arrivalDateTime,
             'start_point' => 'Jan Kuipersweg 21',
             'end_point' => 'almastraat 13',
             'driver_id' => 1,
-            'costs' => 10,
+            'costs' => 50,
+        ]);
+        DB::table('rides')->insert([
+            'dep' => $departDateTime->addDay(),
+            'arrival' => $arrivalDateTime->addDay(),
+            'start_point' => 'Prins Willem Allexanderstraat 81',
+            'end_point' => 'Rottumerweg 8',
+            'driver_id' => 1,
+            'costs' => 40,
+        ]);
+        DB::table('rides')->insert([
+            'dep' => $departDateTime->addDays(2),
+            'arrival' => $arrivalDateTime->addDays(2),
+            'start_point' => 'Ombocht 5',
+            'end_point' => 'almastraat 22',
+            'driver_id' => 2,
+            'costs' => 20,
+        ]);
+        DB::table('rides')->insert([
+            'dep' => $departDateTime->addDays(3),
+            'arrival' => $arrivalDateTime->addDays(3),
+            'start_point' => 'Liaukemastraat 51',
+            'end_point' => 'Fleardyk 40',
+            'driver_id' => 2,
+            'costs' => 30,
         ]);
     }
 }

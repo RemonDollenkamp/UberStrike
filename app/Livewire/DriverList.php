@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Driver;
+use App\Models\Ride;
 use Illuminate\Support\Facades\Redirect;
 
 class DriverList extends Component
@@ -32,8 +33,13 @@ class DriverList extends Component
 
     public function saveDriver()
     {
-        $this->validate();
-
+        $this->validate([
+            'driverName' => 'required|min:2'
+        ], [
+            'driverName.required' => 'U dient een naam in te vullen van minimaal 2 karakters!',
+            'driverName.min' => 'U dient een naam in te vullen van minimaal 2 karakters!'
+        ]);
+        
         // Save the driver to the database
         Driver::create([
             'fullname' => $this->driverName,
@@ -41,7 +47,7 @@ class DriverList extends Component
         ]);
 
             // Add success message to the session
-    session()->flash('success', 'Chauffeur toegevoegd');
+        session()->flash('success', 'Chauffeur toegevoegd');
 
         // Redirect back to the DriverController@index after saving
         return redirect()->route('chauffeurbeheer');
@@ -49,9 +55,17 @@ class DriverList extends Component
 
     public function delete($id)
     {
-        Driver::find($id)->delete();
-
-        session()->flash('success', 'Chauffeur verwijderd');
+        // Check if there are associated rides with the given driver_id
+        if (Ride::where('driver_id', $id)->exists()) {
+            // If there are associated rides, you may want to handle this case (e.g., show a message or prevent deletion)
+            session()->flash('error', 'Er zijn nog ritten gekoppeld aan deze chauffeur. Verwijder eerst de ritten.');
+        } else {
+            // If no associated rides, proceed to delete the Driver record
+            Driver::find($id)->delete();
+            session()->flash('success', 'Chauffeur verwijderd');
+        }
+    
         return redirect()->route('chauffeurbeheer');
     }
+    
 }

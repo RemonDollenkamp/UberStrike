@@ -5,6 +5,12 @@
         <p>{{ session('success') }}</p>
     </div>
     @endif
+    @if(session()->has('error'))
+    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mt-4" role="alert">
+        <p class="font-bold">Fout!</p>
+        <p>{{ session('error') }}</p>
+    </div>
+    @endif
     <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
             <tr>

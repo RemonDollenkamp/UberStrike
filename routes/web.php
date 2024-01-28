@@ -27,7 +27,7 @@ Route::middleware([
     'verified',
 ])->group(function () {
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        return redirect("taxiritten");
     })->name('dashboard');
     Route::get('/taxiritten', [RideController::class, 'index'])->name('taxiritten');
     Route::get('/chauffeurbeheer', [DriverController::class, 'index'])->name('chauffeurbeheer');
