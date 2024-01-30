@@ -58,45 +58,56 @@ class RideList extends Component
                 $durationInSeconds = $jsonResponse['resourceSets'][0]['resources'][0]['travelDuration'];
 
                 $durationFormatted = gmdate('H:i:s', $durationInSeconds);
+                
+                $startTariff = 3.25;
+                $costPerKm = 2.45;
+                $totalCosts = $startTariff + ($distanceInKm * $costPerKm);
+                
+                $departureTime = \Carbon\Carbon::parse($this->dep);
+                $arrivalTime = $departureTime->copy()->addSeconds($durationInSeconds + 600); // Add duration time plus 10 minutes
+                
+                $roundedMinutes = ceil($arrivalTime->format('i') / 5) * 5; // Round up to the nearest 5 minutes
+                $arrivalTime->setMinutes($roundedMinutes); 
+                $arrivalTime->setSeconds(0);                
 
-                dd("Distance: $distanceInKm km, Duration: $durationFormatted");
 
-                // Set ride details for confirmation
                 $this->rideDetails = [
                     'start_point' => $this->start_point,
                     'end_point' => $this->end_point,
                     'personCount' => $this->personCount,
-                    'dep' => \Carbon\Carbon::parse($this->dep)->format('Y-m-d H:i:s'),
+                    'dep' => $departureTime->format('Y-m-d H:i:s'),
+                    'arrival' => $arrivalTime->format('Y-m-d H:i:s'),
                     'duration' => $durationFormatted,
-                    'distance' => $distanceInKm
+                    'distance' => $distanceInKm,    
+                    'costs' => $totalCosts,
                 ];
 
                 // Open the confirmation pop-up
                 $this->isConfirmationOpen = true;
-
             } else {
-                dd("Travel duration information not found in the response", $jsonResponse);
+                session()->flash('error', 'Er is iets fout gegaan met berekenen!');
             }
         } else {
-            dd("Travel distance information not found in the response", $jsonResponse);
+            session()->flash('error', 'Er is iets fout gegaan met berekenen! Check of ingevulde adresgegevens of wees specifieker');
         }
     }
 
     public function confirmRide()
     {
         $personCount = $this->rideDetails['personCount'];
+        $driverId = 1;
 
-        // Save the ride to the database
         $ride = new Ride;
         $ride->start_point = $this->rideDetails['start_point'];
         $ride->end_point = $this->rideDetails['end_point'];
         $ride->dep = $this->rideDetails['dep'];
+        $ride->arrival = $this->rideDetails['arrival'];
+        $ride->costs = $this->rideDetails['costs'];
         $ride->save();
 
         // Close the confirmation pop-up
         $this->isConfirmationOpen = false;
 
-        // Add success message to the session
         session()->flash('success', 'Rit toegevoegd');
     }
 

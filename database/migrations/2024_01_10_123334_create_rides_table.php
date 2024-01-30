@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('end_point', 50)->nullable(); // Defines a nullable varchar column for `end-point`
             $table->unsignedBigInteger('driver_id')->nullable(); // Defines an unsigned bigint column for `driver-id`
 
-            $table->bigInteger('costs')->nullable(); // Defines a nullable bigint column for `costs`
+            $table->decimal('costs', 8, 2)->nullable(); // 8 digits in total, 2 after the decimal point
 
             // Foreign key constraint
             $table->foreign('driver_id')->references('id')->on('drivers')->onDelete('NO ACTION')->onUpdate('NO ACTION');

@@ -19,4 +19,10 @@ class Ride extends Model
         'driver_id',
         'costs',
     ];
+
+    public function getCostsAttribute()
+    {
+        return number_format($this->attributes['costs'], 2, ',', '.') ;
+    }
+    
 }
