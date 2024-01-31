@@ -14,5 +14,10 @@ class Driver extends Model
         'fullname',
         'car',
     ];
+
+    public function rides()
+    {
+        return $this->hasMany(Ride::class, 'driver_id');
+    }
 }
 

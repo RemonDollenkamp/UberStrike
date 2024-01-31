@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Ride;
+use App\Models\Driver;
 use Livewire\Component;
 use Illuminate\Support\Facades\Http;
 
@@ -47,9 +48,40 @@ class RideList extends Component
 
         $apiKey = 'AoL3QYNUBUvzjT8_69hxnDOMwWn-_fU2vIbylH-1UxgNFe0NxEJ0cHcSVzrX1fbN';
 
+        $drivers = Driver::all();
+
+        $driverDistances = [];
+
+        foreach ($drivers as $driver) {
+            $lastRide = $driver->rides->last();
+
+            if ($lastRide) {
+                $response = Http::get("http://dev.virtualearth.net/REST/V1/Routes/Driving?wp.0={$lastRide->end_point}&wp.1=$startPoint&optimize=distance&key=$apiKey");
+                $jsonResponse = json_decode($response->body(), true);
+
+                if (isset($jsonResponse['resourceSets'][0]['resources'][0]['travelDuration'])) {
+                    $durationInSeconds = $jsonResponse['resourceSets'][0]['resources'][0]['travelDuration'];
+                    $lastRideArrivalWithDuration = \Carbon\Carbon::parse($lastRide->arrival)->addSeconds($durationInSeconds);
+                    $roundedMinutes = ceil($lastRideArrivalWithDuration->format('i') / 5) * 5; // Round up to the nearest 5 minutes
+                    $lastRideArrivalWithDuration->setMinutes($roundedMinutes);
+                    $lastRideArrivalWithDuration->setSeconds(0);
+
+                    $driverDistances[$driver->id] = [
+                        'arrival' => $lastRideArrivalWithDuration,
+                    ];
+                }
+            } else {
+                // If the driver has no previous rides, set a large distance
+                $driverDistances[$driver->id] = PHP_INT_MAX;
+            }
+        }
+        $closestDriverId = array_keys($driverDistances, min($driverDistances))[0];
+        $closestDriver = Driver::find($closestDriverId);
+
+        dd($driverDistances);
+
         $response = Http::get("http://dev.virtualearth.net/REST/V1/Routes/Driving?wp.0=$startPoint&wp.1=$endPoint&optimize=distance&key=$apiKey");
         $jsonResponse = json_decode($response->body(), true); // Decoding JSON into an associative array
-
 
         if (isset($jsonResponse['resourceSets'][0]['resources'][0]['travelDistance'])) {
             $distanceInKm = $jsonResponse['resourceSets'][0]['resources'][0]['travelDistance'];
@@ -58,17 +90,17 @@ class RideList extends Component
                 $durationInSeconds = $jsonResponse['resourceSets'][0]['resources'][0]['travelDuration'];
 
                 $durationFormatted = gmdate('H:i:s', $durationInSeconds);
-                
+
                 $startTariff = 3.25;
                 $costPerKm = 2.45;
                 $totalCosts = $startTariff + ($distanceInKm * $costPerKm);
-                
+
                 $departureTime = \Carbon\Carbon::parse($this->dep);
                 $arrivalTime = $departureTime->copy()->addSeconds($durationInSeconds + 600); // Add duration time plus 10 minutes
-                
+
                 $roundedMinutes = ceil($arrivalTime->format('i') / 5) * 5; // Round up to the nearest 5 minutes
-                $arrivalTime->setMinutes($roundedMinutes); 
-                $arrivalTime->setSeconds(0);                
+                $arrivalTime->setMinutes($roundedMinutes);
+                $arrivalTime->setSeconds(0);
 
 
                 $this->rideDetails = [
@@ -78,11 +110,11 @@ class RideList extends Component
                     'dep' => $departureTime->format('Y-m-d H:i:s'),
                     'arrival' => $arrivalTime->format('Y-m-d H:i:s'),
                     'duration' => $durationFormatted,
-                    'distance' => $distanceInKm,    
+                    'distance' => $distanceInKm,
                     'costs' => $totalCosts,
+                    'driverId' => $closestDriverId
                 ];
 
-                // Open the confirmation pop-up
                 $this->isConfirmationOpen = true;
             } else {
                 session()->flash('error', 'Er is iets fout gegaan met berekenen!');
@@ -95,7 +127,6 @@ class RideList extends Component
     public function confirmRide()
     {
         $personCount = $this->rideDetails['personCount'];
-        $driverId = 1;
 
         $ride = new Ride;
         $ride->start_point = $this->rideDetails['start_point'];
@@ -103,6 +134,7 @@ class RideList extends Component
         $ride->dep = $this->rideDetails['dep'];
         $ride->arrival = $this->rideDetails['arrival'];
         $ride->costs = $this->rideDetails['costs'];
+        $ride->driver_id = $this->rideDetails['driverId'];
         $ride->save();
 
         // Close the confirmation pop-up

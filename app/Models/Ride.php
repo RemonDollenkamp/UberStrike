@@ -24,5 +24,4 @@ class Ride extends Model
     {
         return number_format($this->attributes['costs'], 2, ',', '.') ;
     }
-    
 }
