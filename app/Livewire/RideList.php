@@ -66,19 +66,23 @@ class RideList extends Component
                     $lastRideArrivalWithDuration->setMinutes($roundedMinutes);
                     $lastRideArrivalWithDuration->setSeconds(0);
 
-                    $driverDistances[$driver->id] = [
-                        'arrival' => $lastRideArrivalWithDuration,
-                    ];
+                    $driverDistances[$driver->id] = $lastRideArrivalWithDuration;
                 }
             } else {
                 // If the driver has no previous rides, set a large distance
                 $driverDistances[$driver->id] = PHP_INT_MAX;
             }
         }
-        $closestDriverId = array_keys($driverDistances, min($driverDistances))[0];
-        $closestDriver = Driver::find($closestDriverId);
+        $departureTime = \Carbon\Carbon::parse($this->dep);
+        $minDatetime = min($driverDistances);
+        $closestDriverId = array_search($minDatetime, $driverDistances);
+        $driverName = Driver::where('id', $closestDriverId)->first()->fullname;
 
-        dd($driverDistances);
+        if($minDatetime > $departureTime){
+            $departureTime = $minDatetime;
+        }
+        
+        // dd($closestDriverId, $minDatetime, $driverDistances, $departureTime);
 
         $response = Http::get("http://dev.virtualearth.net/REST/V1/Routes/Driving?wp.0=$startPoint&wp.1=$endPoint&optimize=distance&key=$apiKey");
         $jsonResponse = json_decode($response->body(), true); // Decoding JSON into an associative array
@@ -95,7 +99,6 @@ class RideList extends Component
                 $costPerKm = 2.45;
                 $totalCosts = $startTariff + ($distanceInKm * $costPerKm);
 
-                $departureTime = \Carbon\Carbon::parse($this->dep);
                 $arrivalTime = $departureTime->copy()->addSeconds($durationInSeconds + 600); // Add duration time plus 10 minutes
 
                 $roundedMinutes = ceil($arrivalTime->format('i') / 5) * 5; // Round up to the nearest 5 minutes
@@ -110,9 +113,9 @@ class RideList extends Component
                     'dep' => $departureTime->format('Y-m-d H:i:s'),
                     'arrival' => $arrivalTime->format('Y-m-d H:i:s'),
                     'duration' => $durationFormatted,
-                    'distance' => $distanceInKm,
+                    'distance' => number_format($distanceInKm, 2, ',', ''),
                     'costs' => $totalCosts,
-                    'driverId' => $closestDriverId
+                    'driverDetails' => [ 'id' => $closestDriverId, 'fullname' => $driverName]
                 ];
 
                 $this->isConfirmationOpen = true;
@@ -134,7 +137,7 @@ class RideList extends Component
         $ride->dep = $this->rideDetails['dep'];
         $ride->arrival = $this->rideDetails['arrival'];
         $ride->costs = $this->rideDetails['costs'];
-        $ride->driver_id = $this->rideDetails['driverId'];
+        $ride->driver_id = $this->rideDetails['driverDetails']['id'];
         $ride->save();
 
         // Close the confirmation pop-up

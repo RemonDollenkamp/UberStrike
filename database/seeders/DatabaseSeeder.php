@@ -47,24 +47,24 @@ class DatabaseSeeder extends Seeder
             'costs' => 50,
         ]);
         DB::table('rides')->insert([
-            'dep' => $departDateTime->addDay(),
-            'arrival' => $arrivalDateTime->addDay(),
+            'dep' => $departDateTime,
+            'arrival' => $arrivalDateTime,
             'start_point' => 'Prins Willem Allexanderstraat 81',
             'end_point' => 'Rottumerweg 8',
             'driver_id' => 1,
             'costs' => 40,
         ]);
         DB::table('rides')->insert([
-            'dep' => $departDateTime->addDays(2),
-            'arrival' => $arrivalDateTime->addDays(2),
+            'dep' => $departDateTime,
+            'arrival' => $arrivalDateTime,
             'start_point' => 'Ombocht 5',
             'end_point' => 'almastraat 22',
             'driver_id' => 2,
             'costs' => 20,
         ]);
         DB::table('rides')->insert([
-            'dep' => $departDateTime->addDays(3),
-            'arrival' => $arrivalDateTime->addDays(3),
+            'dep' => $departDateTime,
+            'arrival' => $arrivalDateTime,
             'start_point' => 'Liaukemastraat 51',
             'end_point' => 'Fleardyk 40',
             'driver_id' => 2,

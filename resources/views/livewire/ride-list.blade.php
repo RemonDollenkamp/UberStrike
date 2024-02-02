@@ -150,6 +150,7 @@
             <p class="mb-2"><strong>Aantal personen:</strong> {{ $rideDetails['personCount'] }}</p>
             <p class="mb-4"><strong>Afstand:</strong> {{ $rideDetails['distance'] }} km</p>
             <p class="mb-4"><strong>Kostenindicatie:</strong> {{ number_format($rideDetails['costs'], 2, ',', '.') }} EUR</p>
+            <p class="mb-4"><strong>Chauffeur:</strong> Nr. {{ $rideDetails['driverDetails']['id'] }}, {{ $rideDetails['driverDetails']['fullname'] }}</p>
 
             <button wire:click="confirmRide" class="px-4 py-2 bg-green-500 text-white rounded-md">Ja</button>
             <button wire:click="cancelRide" class="px-4 py-2 bg-red-500 text-white rounded-md">Nee</button>
