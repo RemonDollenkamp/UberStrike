@@ -31,13 +31,13 @@
                 @foreach($workshifts as $workshift)
                 <tr>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        {{ $workshift['driver_id'] }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
                         {{ $workshift['shift_start'] }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        {{ $workshift['break-time'] }}
+                        {{ $workshift['shift_end'] }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {{ $workshift['break-time'] }} min.
                     </td>
                 </tr>
                 @endforeach
