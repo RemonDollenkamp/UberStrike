@@ -35,7 +35,7 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <!-- Example: Display a button linking to the work shifts -->
-                    <a href="{{ route('login', $driver->id) }}" class="text-blue-500 hover:underline">Bekijk</a>
+                    <a href="{{ route('werktijden', ['driverId' => $driver->id]) }}" class="text-blue-500 hover:underline">Bekijk</a>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     {{ $driver->car }}

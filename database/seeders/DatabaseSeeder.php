@@ -21,23 +21,23 @@ class DatabaseSeeder extends Seeder
         // Clear existing records to start fresh
         DB::table('users')->truncate();
 
-        // Insert a sample user record
+        //Users
         DB::table('users')->insert([
             'user-name' => 'u', //Fdeboer1
             'password' => Hash::make('p'), //Pass21!
         ]);
 
-
+        //Drivers
         DB::table('drivers')->insert([
-            'fullname' => 'Kees vd Spek', 
-            'car' => 1, 
+            'fullname' => 'Kees vd Spek',
+            'car' => 1,
         ]);
         DB::table('drivers')->insert([
-            'fullname' => 'Jan Schooi', 
-            'car' => 2, 
+            'fullname' => 'Jan Schooi',
+            'car' => 2,
         ]);
 
-
+        //Rides
         DB::table('rides')->insert([
             'dep' => $departDateTime,
             'arrival' => $arrivalDateTime,
@@ -69,6 +69,65 @@ class DatabaseSeeder extends Seeder
             'end_point' => 'Fleardyk 40',
             'driver_id' => 2,
             'costs' => 30,
+        ]);
+
+        //Workdays
+        DB::table('workdays')->insert([
+            'driver_id' => 1,
+            'day_of_the_week' => 1,
+            'shift_start' => '08:30:00',
+            'shift_end' => '17:00:00',
+            'status' => 1,
+            'break-time' => 60
+        ]);
+        DB::table('workdays')->insert([
+            'driver_id' => 1,
+            'day_of_the_week' => 2,
+            'shift_start' => '08:30:00',
+            'shift_end' => '17:00:00',
+            'status' => 1,
+            'break-time' => 60
+        ]);
+        DB::table('workdays')->insert([
+            'driver_id' => 1,
+            'day_of_the_week' => 3,
+            'shift_start' => '08:30:00',
+            'shift_end' => '17:00:00',
+            'status' => 1,
+            'break-time' => 60
+        ]);
+        DB::table('workdays')->insert([
+            'driver_id' => 1,
+            'day_of_the_week' => 4,
+            'shift_start' => '08:30:00',
+            'shift_end' => '17:00:00',
+            'status' => 1,
+            'break-time' => 60
+        ]);
+        DB::table('workdays')->insert([
+            'driver_id' => 1,
+            'day_of_the_week' => 5,
+            'shift_start' => '08:30:00',
+            'shift_end' => '17:00:00',
+            'status' => 1,
+            'break-time' => 60
+        ]);
+
+        DB::table('workdays')->insert([
+            'driver_id' => 2,
+            'day_of_the_week' => 6,
+            'shift_start' => '08:30:00',
+            'shift_end' => '17:00:00',
+            'status' => 1,
+            'break-time' => 60
+        ]);
+        DB::table('workdays')->insert([
+            'driver_id' => 2,
+            'day_of_the_week' => 7,
+            'shift_start' => '08:30:00',
+            'shift_end' => '17:00:00',
+            'status' => 1,
+            'break-time' => 60
         ]);
     }
 }

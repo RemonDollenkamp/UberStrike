@@ -31,6 +31,7 @@ Route::middleware([
     })->name('dashboard');
     Route::get('/taxiritten', [RideController::class, 'index'])->name('taxiritten');
     Route::get('/chauffeurbeheer', [DriverController::class, 'index'])->name('chauffeurbeheer');
+    Route::get('/werktijden/{driverId}', [DriverController::class, 'getWorkshifts'])->name('werktijden');
 });
 
 

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->tinyInteger('day_of_the_week'); // Defines a tinyint column for `day-of-the-week`
             $table->time('shift_start'); // Defines a time column for `shift-start`
             $table->time('shift_end'); // Defines a time column for `shift-end`
+            $table->integer('break-time');
             $table->tinyInteger('status'); // Defines a tinyint column for `status`
 
             // Foreign key constraint
