@@ -15,8 +15,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $departDateTime = Carbon::now();
-        $arrivalDateTime = Carbon::now()->addDays(7); // Set 'arrival' 7 days from now
+        $departDateTime = Carbon::now()->setTime(18, 0, 0);
+        $arrivalDateTime = Carbon::now()->setTime(20, 0, 0);
 
         // Clear existing records to start fresh
         DB::table('users')->truncate();

@@ -18,4 +18,9 @@ class Workday extends Model
         'break_time',
         'status'
     ];
+    public function ride()
+{
+    return $this->belongsTo(Ride::class, 'driver_id', 'driver_id');
+}
+
 }

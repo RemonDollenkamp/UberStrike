@@ -20,6 +20,12 @@ class Ride extends Model
         'costs',
     ];
 
+    public function workdays()
+{
+    return $this->hasMany(Workday::class, 'driver_id', 'driver_id');
+}
+
+
     public function getCostsAttribute()
     {
         return number_format($this->attributes['costs'], 2, ',', '.') ;

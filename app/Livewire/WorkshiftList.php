@@ -4,6 +4,9 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Workday;
+use App\Models\Ride;
+use Carbon\Carbon;
+
 
 class WorkshiftList extends Component
 {
@@ -85,39 +88,32 @@ class WorkshiftList extends Component
 
     public function toggleWorkday($dayIndex)
     {
+        $hasErrors = false;
         // Check the current state
         $currentState = $this->selectedDays[$dayIndex];
-    
-        // Toggle the selected state
-        $this->selectedDays[$dayIndex] = !$currentState;
-    
-        // Dispatch an event to notify Livewire about the change
-        $this->dispatchBrowserEvent('workday-toggled', ['dayIndex' => $dayIndex, 'selected' => $this->selectedDays[$dayIndex]]);
-    
-        // If selected, update or create a new workday record
-        if ($this->selectedDays[$dayIndex]) {
-            $this->updateOrCreateWorkday($dayIndex);
+
+        if ($currentState) {
+            $workshiftData = $this->workshiftsByDay[$dayIndex] ?? [
+                'shift_start' => '00:00:00',
+                'shift_end' => '00:00:00',
+                'break-time' => 0,
+            ];
+
+            $this->updateOrCreateWorkday($dayIndex, $workshiftData);
+            return redirect()->route('werktijden', ['driverId' => $this->driverId])->with('status', 1);
         } else {
-            // If not selected, delete the row for the deselected day
             $this->deleteWorkday($dayIndex);
         }
     }
-    
-    // Add these helper methods to your Livewire component
-    protected function updateOrCreateWorkday($dayIndex)
+
+    protected function updateOrCreateWorkday($dayIndex, $workshiftData)
     {
-        $workshiftData = $this->workshiftsByDay[$dayIndex] ?? [
-            'shift_start' => '00:00:00',
-            'shift_end' => '00:00:00',
-            'break-time' => 0,
-        ];
-    
         Workday::updateOrCreate(
             [
-                'driver_id' => $this->driverId,
                 'day_of_the_week' => $dayIndex,
             ],
             [
+                'driver_id' => $this->driverId,
                 'shift_start' => $workshiftData['shift_start'],
                 'shift_end' => $workshiftData['shift_end'],
                 'break_time' => $workshiftData['break-time'],
@@ -125,20 +121,18 @@ class WorkshiftList extends Component
             ]
         );
     }
-    
+
     protected function deleteWorkday($dayIndex)
     {
         Workday::where('driver_id', $this->driverId)
             ->where('day_of_the_week', $dayIndex)
             ->delete();
     }
-    
 
     public function saveChanges()
     {
         $hasErrors = false;
 
-        // Logic for saving changes remains the same
         foreach ($this->selectedDays as $dayIndex => $isSelected) {
             // Access the values
             $shiftStart = '00:00:00';
@@ -152,34 +146,40 @@ class WorkshiftList extends Component
                     'break-time' => $breakTime,
                 ];
 
+                $workshiftStart = Carbon::parse($workshiftData['shift_start'])->toTimeString();
+                $workshiftEnd = Carbon::parse($workshiftData['shift_end'])->toTimeString();
+                
+                $conflictingRides = Ride::where(function ($query) use ($workshiftStart, $workshiftEnd, $dayIndex) {
+                    $query->where(function ($subQuery) use ($workshiftStart, $workshiftEnd, $dayIndex) {
+                        $subQuery->whereRaw("TIME(dep) BETWEEN ? AND ?", [$workshiftStart, $workshiftEnd])
+                                 ->orWhereRaw("TIME(arrival) BETWEEN ? AND ?", [$workshiftStart, $workshiftEnd]);
+                    });
+                })
+                ->where('driver_id', $this->driverId)
+                ->whereHas('workdays', function ($subQuery) use ($dayIndex) {
+                    $subQuery->where('day_of_the_week', $dayIndex);
+                })
+                ->get();
+            
+                if ($conflictingRides->isNotEmpty()) {
+                    session()->flash('error', 'Voor de gekozen werktijd heeft deze chauffeur nog een rit staan! Verwijder eerst de rit of wacht totdat deze voltooid is.');
+                    $hasErrors = true;
+                    continue;
+                }
 
                 if ((isset($workshiftData['shift_start']) && $workshiftData['shift_start'] == $shiftStart)
                     || (isset($workshiftData['shift_end']) && $workshiftData['shift_end'] == $shiftEnd)
                     || (isset($workshiftData['break-time']) && $workshiftData['break-time'] == $breakTime)
                 ) {
-                    
+
                     session()->flash('error', 'U dient voor elke actieve dag een begin-, eind- en pauzetijd in te vullen!');
-
                     $hasErrors = true;
-
                     continue;
                 }
 
-                Workday::updateOrCreate(
-                    [
-                        'driver_id' => $this->driverId,
-                        'day_of_the_week' => $dayIndex,
-                    ],
-                    [
-                        'shift_start' => $workshiftData['shift_start'],
-                        'shift_end' => $workshiftData['shift_end'],
-                        'break_time' => $workshiftData['break-time'],
-                    ]
-                );
+                $this->updateOrCreateWorkday($dayIndex, $workshiftData);
             } elseif (!$isSelected) {
-                Workday::where('driver_id', $this->driverId)
-                    ->where('day_of_the_week', $dayIndex)
-                    ->delete();
+                $this->deleteWorkday($dayIndex);
             }
         }
 
