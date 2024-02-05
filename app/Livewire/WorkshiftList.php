@@ -16,6 +16,8 @@ class WorkshiftList extends Component
 
     public $workshiftsByDay;
 
+    public $incorrectStatus;
+
 
     public function mount($driverId)
     {
@@ -131,6 +133,7 @@ class WorkshiftList extends Component
 
     public function saveChanges()
     {
+        $incorrectStatus = [];
         $hasErrors = false;
 
         foreach ($this->selectedDays as $dayIndex => $isSelected) {
@@ -146,9 +149,13 @@ class WorkshiftList extends Component
                     'break-time' => $breakTime,
                 ];
 
-                $workshiftStart = Carbon::parse($workshiftData['shift_start'])->toTimeString();
-                $workshiftEnd = Carbon::parse($workshiftData['shift_end'])->toTimeString();
-                
+                $existingWorkshiftData = Workday::where('driver_id', $this->driverId)
+                ->where('day_of_the_week', $dayIndex)
+                ->first();
+            
+                $workshiftStart = Carbon::parse($existingWorkshiftData['shift_start'])->toTimeString();
+                $workshiftEnd = Carbon::parse($existingWorkshiftData['shift_end'])->toTimeString();
+
                 $conflictingRides = Ride::where(function ($query) use ($workshiftStart, $workshiftEnd, $dayIndex) {
                     $query->where(function ($subQuery) use ($workshiftStart, $workshiftEnd, $dayIndex) {
                         $subQuery->whereRaw("TIME(dep) BETWEEN ? AND ?", [$workshiftStart, $workshiftEnd])
@@ -160,9 +167,11 @@ class WorkshiftList extends Component
                     $subQuery->where('day_of_the_week', $dayIndex);
                 })
                 ->get();
+
             
                 if ($conflictingRides->isNotEmpty()) {
                     session()->flash('error', 'Voor de gekozen werktijd heeft deze chauffeur nog een rit staan! Verwijder eerst de rit of wacht totdat deze voltooid is.');
+                    $incorrectStatus[$dayIndex] = true;
                     $hasErrors = true;
                     continue;
                 }
@@ -182,6 +191,8 @@ class WorkshiftList extends Component
                 $this->deleteWorkday($dayIndex);
             }
         }
+
+        $this->incorrectStatus = $incorrectStatus;
 
         if (!$hasErrors) {
             session()->flash('success', 'Werktijden succesvol aangepast!');

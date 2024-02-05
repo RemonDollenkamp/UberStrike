@@ -24,7 +24,7 @@
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
                 @foreach($daysOfWeek as $wdayIndex => $weekdayData)
-                <tr>
+                <tr @if(isset($incorrectStatus[$wdayIndex]) && $incorrectStatus[$wdayIndex]) style="background-color: #FFC0C0;" @endif>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <input type="checkbox" id="day{{ $wdayIndex }}" wire:model="selectedDays.{{ $wdayIndex }}" wire:click="toggleWorkday('{{ $wdayIndex }}')" class="form-checkbox h-5 w-5 text-gray-600">
                         <span class="ml-2 text-gray-700">{{ $weekdayData }}</span>
