@@ -15,7 +15,7 @@ class Workday extends Model
         'day_of_the_week',
         'shift_start',
         'shift_end',
-        'break-time',
+        'break_time',
         'status'
     ];
 }

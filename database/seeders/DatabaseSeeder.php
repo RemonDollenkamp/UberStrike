@@ -78,7 +78,7 @@ class DatabaseSeeder extends Seeder
             'shift_start' => '08:30:00',
             'shift_end' => '17:00:00',
             'status' => 1,
-            'break-time' => 60
+            'break_time' => 60
         ]);
         DB::table('workdays')->insert([
             'driver_id' => 1,
@@ -86,7 +86,7 @@ class DatabaseSeeder extends Seeder
             'shift_start' => '08:30:00',
             'shift_end' => '17:00:00',
             'status' => 1,
-            'break-time' => 60
+            'break_time' => 60
         ]);
         DB::table('workdays')->insert([
             'driver_id' => 1,
@@ -94,7 +94,7 @@ class DatabaseSeeder extends Seeder
             'shift_start' => '08:30:00',
             'shift_end' => '17:00:00',
             'status' => 1,
-            'break-time' => 60
+            'break_time' => 60
         ]);
         DB::table('workdays')->insert([
             'driver_id' => 1,
@@ -102,7 +102,7 @@ class DatabaseSeeder extends Seeder
             'shift_start' => '08:30:00',
             'shift_end' => '17:00:00',
             'status' => 1,
-            'break-time' => 60
+            'break_time' => 60
         ]);
         DB::table('workdays')->insert([
             'driver_id' => 1,
@@ -110,7 +110,7 @@ class DatabaseSeeder extends Seeder
             'shift_start' => '08:30:00',
             'shift_end' => '17:00:00',
             'status' => 1,
-            'break-time' => 60
+            'break_time' => 60
         ]);
 
         DB::table('workdays')->insert([
@@ -119,7 +119,7 @@ class DatabaseSeeder extends Seeder
             'shift_start' => '08:30:00',
             'shift_end' => '17:00:00',
             'status' => 1,
-            'break-time' => 60
+            'break_time' => 60
         ]);
         DB::table('workdays')->insert([
             'driver_id' => 2,
@@ -127,7 +127,7 @@ class DatabaseSeeder extends Seeder
             'shift_start' => '08:30:00',
             'shift_end' => '17:00:00',
             'status' => 1,
-            'break-time' => 60
+            'break_time' => 60
         ]);
     }
 }

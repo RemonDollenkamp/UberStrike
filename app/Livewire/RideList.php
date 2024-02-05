@@ -34,10 +34,13 @@ class RideList extends Component
     public function saveDriver()
     {
         $this->validate([
-            'start_point' => 'required|string',
-            'end_point' => 'required|string',
-            'personCount' => 'required|int',
+            'start_point' => 'required|string|min:2',
+            'end_point' => 'required|string|min:2',
+            'personCount' => 'required|int|min:2',
             'dep' => 'required|date_format:Y-m-d\TH:i',
+        ], [
+            'required' => 'Alle velden moeten ingevuld zijn om een rit te berekenen!',
+            'min' => 'Alle velden moeten ingevuld zijn om een rit te berekenen!'
         ]);
 
         $this->isOpen = false;

@@ -5,7 +5,12 @@
         <p>{{ session('success') }}</p>
     </div>
     @endif
-
+    @if(session()->has('error'))
+    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mt-4" role="alert">
+        <p class="font-bold">Fout!</p>
+        <p>{{ session('error') }}</p>
+    </div>
+    @endif
     <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
             <tr>
@@ -67,12 +72,7 @@
 
                     @if($now > $arrivalTime)
                     compleet
-                    @elseif($now >= $departureTime && $now <= $arrivalTime)
-                    in rit
-                    @else
-                    n.v.t
-                    @endif
-                </td>
+                    @elseif($now >= $departureTime && $now <= $arrivalTime) in rit @else n.v.t @endif </td>
 
 
                 <td class="px-4 py-4 whitespace-nowrap">
@@ -87,9 +87,12 @@
         </tbody>
     </table>
     <div>
-        <button wire:click="$toggle('isOpen')" class="fixed bottom-4 right-4 p-2 bg-blue-500 text-white rounded-full">
-            +
+        <button wire:click="$toggle('isOpen')" class="fixed bottom-4 right-4 p-4 bg-blue-500 text-white rounded-full flex items-center space-x-2 hover:bg-blue-700 focus:outline-none focus:shadow-outline-blue active:bg-blue-800 shadow-lg">
+            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
         </button>
+
 
         <div wire:loading class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
             <!-- Loading spinner or indicator -->
@@ -98,17 +101,20 @@
 
         @if($isOpen)
         <div class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 bg-white rounded-lg shadow-md">
+            @if($errors->any())
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-md w-64">
+                {{ $errors->first() }}
+            </div>
+            @endif
             <form wire:submit.prevent="saveDriver" class="flex flex-col items-center">
                 <div class="mb-4">
                     <label for="start_point" class="block text-sm font-medium text-gray-700">Beginlocatie</label>
                     <input wire:model="start_point" type="text" id="start_point" name="start_point" class="mt-1 p-2 w-full border rounded-md">
-                    @error('start_point') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
 
                 <div class="mb-4">
                     <label for="end_point" class="block text-sm font-medium text-gray-700">Eindlocatie</label>
                     <input wire:model="end_point" type="text" id="end_point" name="end_point" class="mt-1 p-2 w-full border rounded-md">
-                    @error('end_point') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
 
                 <div class="mb-4">
@@ -120,13 +126,11 @@
                         <option value="3">3</option>
                         <option value="4">4</option>
                     </select>
-                    @error('personCount') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
 
                 <div class="mb-4">
                     <label for="dep" class="block text-sm font-medium text-gray-700">Vertrektijd</label>
                     <input wire:model="dep" type="datetime-local" id="dep" name="dep" class="mt-1 p-2 w-full border rounded-md">
-                    @error('dep') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
 
                 <div class="flex justify-end w-full">
