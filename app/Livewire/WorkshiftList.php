@@ -6,7 +6,7 @@ use Livewire\Component;
 use App\Models\Workday;
 use App\Models\Ride;
 use Carbon\Carbon;
-
+use Illuminate\Http\Request;
 
 class WorkshiftList extends Component
 {
@@ -51,19 +51,21 @@ class WorkshiftList extends Component
         }
     }
 
-    public function render()
+    public function render(request $request)
     {
         $daysOfWeek = $this->getDaysOfWeek();
-
+        $this->incorrectStatus = $request->query('incorrectStatus');
+        $request->replace($request->except('incorrectStatus'));
         $this->workshiftsByDay = $this->organizeWorkshiftsByDay();
 
 
-        //  dd($this->selectedDays);
+        //  dd($this->incorrectStatus);
 
         return view('livewire.workshift-list', [
             'daysOfWeek' => $daysOfWeek,
             'workshiftsByDay' => $this->workshiftsByDay,
             'selectedDays' => $this->selectedDays,
+            'incorrectStatus' => $this->incorrectStatus
         ]);
     }
 
@@ -123,16 +125,17 @@ class WorkshiftList extends Component
             ]
         );
     }
-
-    protected function deleteWorkday($dayIndex)
+    public function deleteWorkday($dayIndex)
     {
         Workday::where('driver_id', $this->driverId)
-            ->where('day_of_the_week', $dayIndex)
-            ->delete();
+        ->where('day_of_the_week', $dayIndex)
+        ->delete();
     }
+
 
     public function saveChanges()
     {
+        $this->organizeWorkshiftsByDay();
         $incorrectStatus = [];
         $hasErrors = false;
 
@@ -150,37 +153,72 @@ class WorkshiftList extends Component
                 ];
 
                 $existingWorkshiftData = Workday::where('driver_id', $this->driverId)
-                ->where('day_of_the_week', $dayIndex)
-                ->first();
-            
-                $workshiftStart = Carbon::parse($existingWorkshiftData['shift_start'])->toTimeString();
-                $workshiftEnd = Carbon::parse($existingWorkshiftData['shift_end'])->toTimeString();
+                    ->where('day_of_the_week', $dayIndex)
+                    ->first();
 
-                $conflictingRides = Ride::where(function ($query) use ($workshiftStart, $workshiftEnd, $dayIndex) {
+                // Update to ensure these values are set before parsing
+                $workshiftStart = isset($workshiftData['shift_start']) ? Carbon::parse($workshiftData['shift_start'])->toTimeString() : null;
+                $workshiftEnd = isset($workshiftData['shift_end']) ? Carbon::parse($workshiftData['shift_end'])->toTimeString() : null;
+
+                $existingWorkshiftStart = isset($this->workshiftsByDay[$dayIndex]['shift_start']) ? Carbon::parse($this->workshiftsByDay[$dayIndex]['shift_start'])->toTimeString() : null;
+                $existingWorkshiftEnd = isset($existingWorkshiftData['shift_end']) ? Carbon::parse($existingWorkshiftData['shift_end'])->toTimeString() : null;
+                // dd($workshiftEnd, $existingWorkshiftEnd);
+                $conflictingRides = Ride::where(function ($query) use ($workshiftStart, $workshiftEnd, $existingWorkshiftStart, $existingWorkshiftEnd, $dayIndex) {
                     $query->where(function ($subQuery) use ($workshiftStart, $workshiftEnd, $dayIndex) {
                         $subQuery->whereRaw("TIME(dep) BETWEEN ? AND ?", [$workshiftStart, $workshiftEnd])
-                                 ->orWhereRaw("TIME(arrival) BETWEEN ? AND ?", [$workshiftStart, $workshiftEnd]);
+                            ->orWhereRaw("TIME(arrival) BETWEEN ? AND ?", [$workshiftStart, $workshiftEnd]);
+                    });
+
+                    $query->orWhere(function ($subQuery) use ($existingWorkshiftStart, $existingWorkshiftEnd, $dayIndex) {
+                        $subQuery->whereRaw("TIME(dep) BETWEEN ? AND ?", [$existingWorkshiftStart, $existingWorkshiftEnd])
+                            ->orWhereRaw("TIME(arrival) BETWEEN ? AND ?", [$existingWorkshiftStart, $existingWorkshiftEnd]);
                     });
                 })
-                ->where('driver_id', $this->driverId)
-                ->whereHas('workdays', function ($subQuery) use ($dayIndex) {
-                    $subQuery->where('day_of_the_week', $dayIndex);
-                })
-                ->get();
+                    ->where('driver_id', $this->driverId)
+                    ->whereHas('workdays', function ($subQuery) use ($dayIndex) {
+                        $subQuery->where('day_of_the_week', $dayIndex);
+                    })
+                    ->where(function ($query) {
+                        $query->whereDate('dep', '>', now())
+                            ->orWhereDate('dep', now());
+                    })
+                    ->get();
 
-            
                 if ($conflictingRides->isNotEmpty()) {
-                    session()->flash('error', 'Voor de gekozen werktijd heeft deze chauffeur nog een rit staan! Verwijder eerst de rit of wacht totdat deze voltooid is.');
-                    $incorrectStatus[$dayIndex] = true;
-                    $hasErrors = true;
-                    continue;
+                    $conflictingRides = $conflictingRides->filter(function ($conflictingRide) use ($workshiftStart, $workshiftEnd, $dayIndex) {
+                        $conflictingDayIndex = Carbon::parse($conflictingRide->dep)->dayOfWeek;
+
+                        // Check if the conflicting ride falls within the specified shift time
+                        $conflictingRideStart = Carbon::parse($conflictingRide->dep)->format('H:i:s');
+                        $conflictingRideEnd = Carbon::parse($conflictingRide->arrival)->format('H:i:s');
+
+                        return $conflictingDayIndex == $dayIndex;
+                    });
+                    if ($conflictingRides->isNotEmpty()) {
+                        // Check if all conflicting rides fall outside the shift time
+                        $allConflictingRidesOutsideShift = $conflictingRides->every(function ($conflictingRide) use ($workshiftStart, $workshiftEnd) {
+                            $conflictingRideStart = Carbon::parse($conflictingRide->dep)->format('H:i:s');
+                            $conflictingRideEnd = Carbon::parse($conflictingRide->arrival)->format('H:i:s');
+
+                            //  dd($conflictingRideStart, $conflictingRideEnd, $workshiftEnd);
+
+                            return ($conflictingRideStart >= $workshiftStart && $conflictingRideStart < $workshiftEnd) && ($conflictingRideEnd <= $workshiftEnd && $conflictingRideEnd > $workshiftStart);
+                        });
+                        //  dd($this->workshiftsByDay[$dayIndex]);
+                        // dd($conflictingRides);
+                        if (!$allConflictingRidesOutsideShift) {
+                            $hasErrors = true;
+                            session()->flash('error', 'Voor de gekozen werktijd(en) heeft deze chauffeur nog een rit staan! Verwijder eerst de rit of wacht totdat deze voltooid is.');
+                            $incorrectStatus[$dayIndex] = true;
+                            continue;
+                        }
+                    }
                 }
 
                 if ((isset($workshiftData['shift_start']) && $workshiftData['shift_start'] == $shiftStart)
                     || (isset($workshiftData['shift_end']) && $workshiftData['shift_end'] == $shiftEnd)
                     || (isset($workshiftData['break-time']) && $workshiftData['break-time'] == $breakTime)
                 ) {
-
                     session()->flash('error', 'U dient voor elke actieve dag een begin-, eind- en pauzetijd in te vullen!');
                     $hasErrors = true;
                     continue;
@@ -195,7 +233,8 @@ class WorkshiftList extends Component
         $this->incorrectStatus = $incorrectStatus;
 
         if (!$hasErrors) {
-            session()->flash('success', 'Werktijden succesvol aangepast!');
+            session()->flash('success', 'Werktijden succesvol opgeslagen!');
         }
+        return redirect()->route('werktijden', ['driverId' => $this->driverId, 'incorrectStatus' => $this->incorrectStatus])->with('status', 1);
     }
 }

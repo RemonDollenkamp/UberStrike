@@ -15,16 +15,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $departDateTime = Carbon::now()->setTime(18, 0, 0);
-        $arrivalDateTime = Carbon::now()->setTime(20, 0, 0);
+        $departDateTime = Carbon::now()->setTime(15, 0, 0);
+        $arrivalDateTime = Carbon::now()->setTime(16, 0, 0);
 
         // Clear existing records to start fresh
         DB::table('users')->truncate();
 
         //Users
         DB::table('users')->insert([
-            'user-name' => 'u', //Fdeboer1
-            'password' => Hash::make('p'), //Pass21!
+            'user-name' => 'Fdeboer1', //Fdeboer1
+            'password' => Hash::make('Pass21!'), //Pass21!
         ]);
 
         //Drivers
@@ -47,8 +47,8 @@ class DatabaseSeeder extends Seeder
             'costs' => 50,
         ]);
         DB::table('rides')->insert([
-            'dep' => $departDateTime,
-            'arrival' => $arrivalDateTime,
+            'dep' => $departDateTime->addDay(),
+            'arrival' => $arrivalDateTime->addDay(),
             'start_point' => 'Prins Willem Allexanderstraat 81',
             'end_point' => 'Rottumerweg 8',
             'driver_id' => 1,
@@ -63,8 +63,8 @@ class DatabaseSeeder extends Seeder
             'costs' => 20,
         ]);
         DB::table('rides')->insert([
-            'dep' => $departDateTime,
-            'arrival' => $arrivalDateTime,
+            'dep' => $departDateTime->addDay(),
+            'arrival' => $arrivalDateTime->addDay(),
             'start_point' => 'Liaukemastraat 51',
             'end_point' => 'Fleardyk 40',
             'driver_id' => 2,

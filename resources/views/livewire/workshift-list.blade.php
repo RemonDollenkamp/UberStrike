@@ -2,7 +2,7 @@
     <div>
         @if(session()->has('success'))
         <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mt-4" role="alert">
-            <p class="font-bold">Success!</p>
+            <p class="font-bold">Succes!</p>
             <p>{{ session('success') }}</p>
         </div>
         @endif
@@ -19,7 +19,7 @@
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dag</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Begintijd</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Eindtijd</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pauzetijd</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pauzetijd (min)</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -30,16 +30,28 @@
                         <span class="ml-2 text-gray-700">{{ $weekdayData }}</span>
                     </td>
                     @if(count($workshiftsByDay) > 0 && isset($workshiftsByDay[$wdayIndex]) && $selectedDays[$wdayIndex])
-                    <!-- Inline-edit inputs for the current day -->
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <input wire:model.defer="workshiftsByDay.{{ $wdayIndex }}.shift_start" type="time" class="border-2 border-gray-300 p-2" @if(isset($workshiftsByDay[$wdayIndex])) value="{{ $workshiftsByDay[$wdayIndex]['shift_start'] }}" @endif>
+                        @if(isset($workshiftsByDay[$wdayIndex]))
+                        <input wire:model.defer="workshiftsByDay.{{ $wdayIndex }}.shift_start" type="time" class="border-2 border-gray-300 p-2" value="{{ $workshiftsByDay[$wdayIndex]['shift_start'] }}">
+                        @else
+                        <span>Loading...</span>
+                        @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <input wire:model.defer="workshiftsByDay.{{ $wdayIndex }}.shift_end" type="time" class="border-2 border-gray-300 p-2" @if(isset($workshiftsByDay[$wdayIndex])) value="{{ $workshiftsByDay[$wdayIndex]['shift_end'] }}" @endif>
+                        @if(isset($workshiftsByDay[$wdayIndex]))
+                        <input wire:model.defer="workshiftsByDay.{{ $wdayIndex }}.shift_end" type="time" class="border-2 border-gray-300 p-2" value="{{ $workshiftsByDay[$wdayIndex]['shift_end'] }}">
+                        @else
+                        <span>Loading...</span>
+                        @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <input wire:model.defer="workshiftsByDay.{{ $wdayIndex }}.break-time" type="text" class="border-2 border-gray-300 p-2" @if(isset($workshiftsByDay[$wdayIndex])) value="{{ $workshiftsByDay[$wdayIndex]['break-time'] }}" @endif>
+                        @if(isset($workshiftsByDay[$wdayIndex]))
+                        <input wire:model.defer="workshiftsByDay.{{ $wdayIndex }}.break-time" type="text" class="border-2 border-gray-300 p-2" value="{{ $workshiftsByDay[$wdayIndex]['break-time'] }}">
+                        @else
+                        <span>Loading...</span>
+                        @endif
                     </td>
+
                     @else
                     <!-- Display placeholders if no workshifts for the current day or checkbox not selected -->
                     <td class="px-6 py-4 whitespace-nowrap" colspan="3">Geen werkdag</td>

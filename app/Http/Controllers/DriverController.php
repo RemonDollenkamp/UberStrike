@@ -15,8 +15,10 @@ class DriverController extends Controller
         return view('drivers');
     }
 
-    public function getWorkshifts($driverId)
+    public function getWorkshifts($driverId, request $request)
     {
-        return view('workshifts', ['driverId' => $driverId]);
+        $incorrectStatus = $request['$incorrectStatus'];
+
+        return view('workshifts', ['driverId' => $driverId, 'incorrectStatus' => $incorrectStatus]);
     }
 }
